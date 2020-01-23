@@ -28,8 +28,8 @@ func init() {
 	flag.BoolVar(&cache, "s", true, "Use check cache")
 	flag.IntVar(&timeout, "t", 10, "Check execution timeout")
 	flag.IntVar(&workers, "w", 10, "Number of concurrent checks") // NUMPROCS
-	flag.IntVar(&debug, "d", 0, "Debug level, max 2")
-	flag.IntVar(&verbose, "v", 0, "Verbosity level, max 2")
+	flag.IntVar(&debug, "d", 1, "Debug level, max 2")
+	flag.IntVar(&verbose, "v", 1, "Verbosity level, max 2")
 	flag.BoolVar(&exthelp, "extended-help", false, "Print the extended help")
 	flag.Parse()
 
