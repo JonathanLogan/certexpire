@@ -81,7 +81,9 @@ func main() {
 	os.Exit(report.Logger.Stop())
 }
 
-var newhelp = `certexpire is a tool to check the expiration date (NotAfter) and optionally the hash of x509 certificates.
+var newhelp = `# certexpire
+
+certexpire is a tool to check the expiration date (NotAfter) and optionally the hash of x509 certificates.
 These certificates can be loaded from file, the standard output of a program, or from the network.
 Network protocols supported are direct TLS/SSL connections over TCP, as well as IMAP and SMTP with STARTTLS.
 
@@ -92,7 +94,7 @@ Each line defines one command. Lines starting with # are comments.
 The standard test command looks like:
   hostname:param:protocol:deadline:<hash>
 
-hostname is refers both to network connection hostname as well as owner of certificate.
+hostname refers both to network connection hostname as well as owner of certificate.
 param refers to the parameter used for this check, it depends on the protocol. Supported protocols are:
   ssl or tls: Direct TLS/SSL connection over TCP. Param must contain the port number.
   imap: STARTTLS for IMAP. Param is the port number.
@@ -125,6 +127,7 @@ certexpire also supports SOCKS5 connections for its checks. The setting applies 
   !proxyaddress
 
 proxyaddress is the hostname:port of a SOCKS5 server.
+Set proxyaddress to "direct" to disable a previous proxy configuration.
 
 ==
 The exit code of certexpire is meaningful. It returns:
@@ -167,6 +170,19 @@ The following servers have failed the TLS certificate check:
 Update ASAP!
 ----- SNIP -----
 
+Data available for the check result are:
+ Hostname,        string: Hostname for connect and certificate ownership.
+ Param,           string: The parameter. Depends on protocol.
+ Protocol,        string: The protocol (tls, imap, etc).
+ Deadline, time.Duration: Warning deadline for expiration.
+ Hash,            string: The expected/configured certificate hash.
+ ReturnHash,      string: The actual hash returned by the check.
+ Error,          []error: List of verification errors.
+ ExecuteError,     error: If there was an error on retrieving the certificate.
+ ExpireTime,   time.Time: The certificate's NotAfter.
+
+
+
 ==
 Commandline parameters:
 
@@ -187,8 +203,7 @@ Commandline parameters:
             Timeout for a check to complete, or fail.
 
   -w int    Number of concurrent checks (default 10)
-            Parallel checks are performed. Define how many may run in parallel.
-`
+            Parallel checks are performed. Define how many may run in parallel.`
 
 func printNewHelp() {
 	fmt.Println(newhelp)
