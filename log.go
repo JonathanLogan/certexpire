@@ -104,7 +104,7 @@ func (rep *Report) LogError(sc *ServerCheck) {
 			extra += fmt.Sprintf(",Hash=%s", sc.ReturnHash)
 		}
 		if l == ErrExpire {
-			extra += fmt.Sprintf(",Expires=%s", sc.ExpireTime.Format("2006-2-1"))
+			extra += fmt.Sprintf(",Expires=%s", sc.ExpireTime.Format("2006-02-01"))
 		}
 		errors = append(errors, l.Error())
 	}
