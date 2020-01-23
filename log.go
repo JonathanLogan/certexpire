@@ -98,11 +98,18 @@ func (rep *Report) LogStatus(sc *ServerCheck) {
 
 func (rep *Report) LogError(sc *ServerCheck) {
 	var errors []string
+	var extra string
 	for _, l := range sc.Error {
+		if l == ErrHash {
+			extra += fmt.Sprintf(",Hash=%s", sc.ReturnHash)
+		}
+		if l == ErrExpire {
+			extra += fmt.Sprintf(",Expires=%s", sc.ExpireTime.Format("2006-2-1"))
+		}
 		errors = append(errors, l.Error())
 	}
 	if sc.ExecuteError != nil {
 		errors = append(errors, sc.ExecuteError.Error())
 	}
-	rep.Logger.Log(MsgLogError, fmt.Sprintf("%s:%s,[\"%s\"]", sc.Hostname, sc.Param, strings.Join(errors, "\", \"")))
+	rep.Logger.Log(MsgLogError, fmt.Sprintf("%s:%s,[\"%s\"]%s", sc.Hostname, sc.Param, strings.Join(errors, "\", \""), extra))
 }
