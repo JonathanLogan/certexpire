@@ -30,7 +30,7 @@ func init() {
 	flag.IntVar(&workers, "w", 10, "Number of concurrent checks") // NUMPROCS
 	flag.IntVar(&debug, "d", 0, "Debug level, max 2")
 	flag.IntVar(&verbose, "v", 0, "Verbosity level, max 2")
-	flag.BoolVar(&exthelp, "extendend-help", false, "Print the extended help")
+	flag.BoolVar(&exthelp, "extended-help", false, "Print the extended help")
 	flag.Parse()
 
 	if exthelp {
