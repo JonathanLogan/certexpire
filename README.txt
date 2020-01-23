@@ -11,7 +11,7 @@ Each line defines one command. Lines starting with # are comments.
 The standard test command looks like:
   hostname:param:protocol:deadline:<hash>
 
-hostname is refers both to network connection hostname as well as owner of certificate.
+hostname refers both to network connection hostname as well as owner of certificate.
 param refers to the parameter used for this check, it depends on the protocol. Supported protocols are:
   ssl or tls: Direct TLS/SSL connection over TCP. Param must contain the port number.
   imap: STARTTLS for IMAP. Param is the port number.
@@ -44,6 +44,7 @@ certexpire also supports SOCKS5 connections for its checks. The setting applies 
   !proxyaddress
 
 proxyaddress is the hostname:port of a SOCKS5 server.
+Set proxyaddress to "direct" to disable a previous proxy configuration.
 
 ==
 The exit code of certexpire is meaningful. It returns:
@@ -85,6 +86,19 @@ The following servers have failed the TLS certificate check:
 
 Update ASAP!
 ----- SNIP -----
+
+Data available for the check result are:
+ Hostname,        string: Hostname for connect and certificate ownership.
+ Param,           string: The parameter. Depends on protocol.
+ Protocol,        string: The protocol (tls, imap, etc).
+ Deadline, time.Duration: Warning deadline for expiration.
+ Hash,            string: The expected/configured certificate hash.
+ ReturnHash,      string: The actual hash returned by the check.
+ Error,          []error: List of verification errors.
+ ExecuteError,     error: If there was an error on retrieving the certificate.
+ ExpireTime,   time.Time: The certificate's NotAfter.
+
+
 
 ==
 Commandline parameters:
