@@ -1,0 +1,7 @@
+# github.com/gammazero/deque v0.0.0-20190521012701-46e4ffb7a622
+github.com/gammazero/deque
+# github.com/gammazero/workerpool v0.0.0-20200108033143-79b2336fad7a
+github.com/gammazero/workerpool
+# golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
+golang.org/x/net/internal/socks
+golang.org/x/net/proxy
