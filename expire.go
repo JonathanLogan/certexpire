@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// TLSTimeout is timeout for negotiating a TLS connection.
-var TLSTimeout = time.Second * 10
+// // TLSTimeout is timeout for negotiating a TLS connection.
+// var TLSTimeout = time.Second * 10
 
 func deadline(timeout time.Duration) time.Time {
 	return time.Now().Add(timeout)
@@ -26,26 +26,34 @@ type CertValues struct {
 	Expire      time.Time // Time this certificate expires.
 	VerifyError error     // Any TLS  errors when connecting.
 	Hash        string    // Hash of the raw certificate.
+	Certificate *x509.Certificate
 }
 
 func hashString(d []byte) string {
 	return fmt.Sprintf("%x", sha512.Sum512(d))
 }
 
-func convertCertificate(hostname string, cert *x509.Certificate) *CertValues {
-	return &CertValues{
+func convertCertificate(hostname string, cert *x509.Certificate, prevError ...error) *CertValues {
+	ret := &CertValues{
 		Hostname:    hostname,
 		Expire:      cert.NotAfter,
 		Hash:        hashString(cert.Raw),
-		VerifyError: cert.VerifyHostname(hostname),
+		Certificate: cert,
 	}
+	if hostname != "" {
+		ret.VerifyError = cert.VerifyHostname(hostname)
+	}
+	if ret.VerifyError == nil && len(prevError) > 0 {
+		ret.VerifyError = prevError[0]
+	}
+	return ret
 }
 
 // GetCertificate returns the server certificate's expiry time. conn is an established connection. hostname is the hostname of the remote server.
 func GetCertificate(conn net.Conn, hostname string, timeout time.Duration) (*CertValues, error) {
-	c := tls.Client(conn, &tls.Config{ServerName: hostname})
+	c := tls.Client(conn, &tls.Config{ServerName: hostname, InsecureSkipVerify: true})
 	defer c.Close()
-	c.SetDeadline(deadline(timeout))
+	_ = c.SetDeadline(deadline(timeout))
 	err := c.Handshake()
 	if err != nil {
 		return &CertValues{
@@ -60,6 +68,21 @@ func GetCertificate(conn net.Conn, hostname string, timeout time.Duration) (*Cer
 		return &CertValues{
 			Hostname: hostname,
 		}, ErrNoCert
+	}
+	roots, err := x509.SystemCertPool()
+	if err != nil {
+		return nil, err
+	}
+	opts := x509.VerifyOptions{
+		Roots:         roots,
+		CurrentTime:   time.Now(),
+		Intermediates: x509.NewCertPool(),
+	}
+	for _, cert := range certs[1:] {
+		opts.Intermediates.AddCert(cert)
+	}
+	if _, err := certs[0].Verify(opts); err != nil {
+		return convertCertificate(hostname, certs[0], err), nil
 	}
 	return convertCertificate(hostname, certs[0]), nil
 }
