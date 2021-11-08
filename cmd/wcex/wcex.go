@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
+	"github.com/JonathanLogan/certexpire/cmd/wcex/stringduration"
 	"net/url"
 	"os"
 	"strings"
@@ -19,6 +20,7 @@ import (
 
 var (
 	warningTime time.Duration
+	warningTimeString string
 	verbose     bool
 )
 
@@ -38,7 +40,7 @@ func parseURL(s string) (servername, param, proto string, err error) {
 }
 
 func init() {
-	flag.DurationVar(&warningTime, "t", time.Hour*24, "Warning time")
+	flag.StringVar(&warningTimeString, "t", "1d", "Warning time")
 	flag.BoolVar(&verbose, "v", false, "Verbose")
 }
 
@@ -54,6 +56,11 @@ func verboseInfo(status string, value *certexpire.CertValues) {
 
 func main() {
 	flag.Parse()
+	warningTime,err:=stringduration.Parse(warningTimeString)
+	if err!=nil{
+		_,_=fmt.Fprintf(os.Stderr,"Bad value for warning time (-t): %s\n",warningTimeString)
+		os.Exit(3)
+	}
 	args := flag.Args()
 	if len(args) == 0 {
 		_, _ = fmt.Fprintln(os.Stderr, "Error, missing subject. file/url (tls://,smtp://,imap://")
